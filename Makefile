@@ -8,23 +8,18 @@ LDFLAGS = $(shell pkg-config --libs gtk+-3.0 sqlite3)
 LDFLAGS_GIO = $(shell pkg-config --libs gio-2.0)
 
 TARGET = venom_clipboard
-TEST_TARGET = clipboard_test
 SRC = venom_clipboard.c
-TEST_SRC = clipboard_test.c
 
-.PHONY: all clean install test
+.PHONY: all clean install
 
-all: $(TARGET) $(TEST_TARGET)
-	@echo "✅ Build complete: $(TARGET), $(TEST_TARGET)"
+all: $(TARGET)
+	@echo "✅ Build complete: $(TARGET)"
 
 $(TARGET): $(SRC)
 	$(CC) $(CFLAGS) -o $(TARGET) $(SRC) $(LDFLAGS)
 
-$(TEST_TARGET): $(TEST_SRC)
-	$(CC) $(CFLAGS) -o $(TEST_TARGET) $(TEST_SRC) $(LDFLAGS)
-
 clean:
-	rm -f $(TARGET) $(TEST_TARGET)
+	rm -f $(TARGET)
 	@echo "🧹 Cleaned."
 
 install: $(TARGET)

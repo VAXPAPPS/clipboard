@@ -76,10 +76,12 @@ fi
 
 # تفعيل الخدمة للمستخدم
 REAL_USER="${SUDO_USER:-$USER}"
+USER_ID=$(id -u "$REAL_USER")
 echo -e "${YELLOW}🔄 Enabling service for user: ${REAL_USER}${NC}"
-sudo -u "$REAL_USER" systemctl --user daemon-reload
-sudo -u "$REAL_USER" systemctl --user enable "$SERVICE_NAME"
-sudo -u "$REAL_USER" systemctl --user start "$SERVICE_NAME"
+export XDG_RUNTIME_DIR="/run/user/$USER_ID"
+su - "$REAL_USER" -c "export XDG_RUNTIME_DIR=/run/user/$USER_ID; systemctl --user daemon-reload"
+su - "$REAL_USER" -c "export XDG_RUNTIME_DIR=/run/user/$USER_ID; systemctl --user enable $SERVICE_NAME"
+su - "$REAL_USER" -c "export XDG_RUNTIME_DIR=/run/user/$USER_ID; systemctl --user start $SERVICE_NAME"
 
 # النتيجة
 echo ""
