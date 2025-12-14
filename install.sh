@@ -28,10 +28,35 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
-# إيقاف الخدمة إذا كانت تعمل
-echo -e "${YELLOW}🛑 Stopping running instances...${NC}"
-systemctl --user stop $SERVICE_NAME 2>/dev/null || true
+# إيقاف وتعطيل وحذف الخدمة القديمة
+echo -e "${YELLOW}🛑 Stopping and removing old installation...${NC}"
+
+REAL_USER="${SUDO_USER:-$USER}"
+USER_ID=$(id -u "$REAL_USER")
+export XDG_RUNTIME_DIR="/run/user/$USER_ID"
+
+# إيقاف الخدمة
+su - "$REAL_USER" -c "export XDG_RUNTIME_DIR=/run/user/$USER_ID; systemctl --user stop $SERVICE_NAME 2>/dev/null" || true
+
+# تعطيل الخدمة
+su - "$REAL_USER" -c "export XDG_RUNTIME_DIR=/run/user/$USER_ID; systemctl --user disable $SERVICE_NAME 2>/dev/null" || true
+
+# قتل العملية
 pkill -9 $DAEMON_NAME 2>/dev/null || true
+
+# حذف ملف الخدمة القديم
+if [ -f "/usr/lib/systemd/user/$SERVICE_NAME" ]; then
+    rm -f "/usr/lib/systemd/user/$SERVICE_NAME"
+    echo -e "  ${GREEN}✓${NC} Removed old service file"
+fi
+
+# حذف البرنامج القديم
+if [ -f "/usr/bin/$DAEMON_NAME" ]; then
+    rm -f "/usr/bin/$DAEMON_NAME"
+    echo -e "  ${GREEN}✓${NC} Removed old binary"
+fi
+
+echo -e "  ${GREEN}✓${NC} Cleanup complete"
 
 # ترجمة إذا لزم الأمر
 if [ ! -f "$SCRIPT_DIR/$DAEMON_NAME" ]; then
@@ -74,14 +99,13 @@ EOF
     echo -e "  ${GREEN}✓${NC} Generated /usr/lib/systemd/user/$SERVICE_NAME"
 fi
 
-# تفعيل الخدمة للمستخدم
+# تحديث systemd فقط - مدير الجلسة هو من يفعل الخدمات
 REAL_USER="${SUDO_USER:-$USER}"
 USER_ID=$(id -u "$REAL_USER")
-echo -e "${YELLOW}🔄 Enabling service for user: ${REAL_USER}${NC}"
+echo -e "${YELLOW}🔄 Reloading systemd for user: ${REAL_USER}${NC}"
 export XDG_RUNTIME_DIR="/run/user/$USER_ID"
 su - "$REAL_USER" -c "export XDG_RUNTIME_DIR=/run/user/$USER_ID; systemctl --user daemon-reload"
-su - "$REAL_USER" -c "export XDG_RUNTIME_DIR=/run/user/$USER_ID; systemctl --user enable $SERVICE_NAME"
-su - "$REAL_USER" -c "export XDG_RUNTIME_DIR=/run/user/$USER_ID; systemctl --user start $SERVICE_NAME"
+echo -e "  ${GREEN}✓${NC} Service file registered (not enabled - managed by session manager)"
 
 # النتيجة
 echo ""

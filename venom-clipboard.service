@@ -6,8 +6,7 @@ After=graphical-session.target
 [Service]
 Type=simple
 ExecStart=/usr/bin/venom_clipboard
-Restart=on-failure
-RestartSec=3
+
 
 [Install]
 WantedBy=default.target
