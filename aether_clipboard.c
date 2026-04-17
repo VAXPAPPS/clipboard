@@ -1,6 +1,6 @@
 /*
  * ═══════════════════════════════════════════════════════════════════════════
- * 🐍 Venom Clipboard Manager v3.0
+ * 🐍 aether Clipboard Manager v3.0
  * ═══════════════════════════════════════════════════════════════════════════
  * مدير حافظة مع واجهة رسومية مدمجة
  * - يتتبع CLIPBOARD فقط (Ctrl+C)
@@ -26,13 +26,13 @@
 
 #define MAX_HISTORY_SIZE 100
 #define MAX_ENTRY_LENGTH 1048576
-#define DBUS_NAME "org.venom.Clipboard"
-#define DBUS_PATH "/org/venom/Clipboard"
-#define DBUS_INTERFACE "org.venom.Clipboard"
+#define DBUS_NAME "org.aether.Clipboard"
+#define DBUS_PATH "/org/aether/Clipboard"
+#define DBUS_INTERFACE "org.aether.Clipboard"
 
 #define WINDOW_WIDTH 450
 #define WINDOW_HEIGHT 550
-#define DB_PATH "/.local/share/venom/clipboard.db"
+#define DB_PATH "/.local/share/aether/clipboard.db"
 
 // ═══════════════════════════════════════════════════════════════════════════
 // هيكل البيانات
@@ -570,8 +570,8 @@ static gboolean on_window_delete(GtkWidget *widget, GdkEvent *event, gpointer da
 static void apply_css() {
     GtkCssProvider *provider = gtk_css_provider_new();
     gtk_css_provider_load_from_data(provider,
-        "window, .background { background-color: rgba(0, 0, 0, 0.10); }"
-        ".main-box { background-color: rgba(20, 20, 30, 0.88); border-radius: 16px; padding: 16px; }"
+        "window, .background { background-color: rgba(0, 0, 0, 0); }"
+        ".main-box { background-color: rgba(0, 0, 0, 0.34); border-radius: 16px; padding: 16px; }"
         ".title { font-size: 20px; font-weight: bold; color: #00d4ff; margin-bottom: 8px; }"
         ".search-entry { background: rgba(255, 255, 255, 0.08); color: #fff; "
         "  border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 8px; padding: 10px 14px; font-size: 14px; }"
@@ -605,7 +605,7 @@ static void apply_css() {
 
 static void build_window() {
     main_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_title(GTK_WINDOW(main_window), "Venom Clipboard");
+    gtk_window_set_title(GTK_WINDOW(main_window), "aether Clipboard");
     gtk_window_set_default_size(GTK_WINDOW(main_window), WINDOW_WIDTH, WINDOW_HEIGHT);
     gtk_window_set_position(GTK_WINDOW(main_window), GTK_WIN_POS_CENTER);
     gtk_window_set_decorated(GTK_WINDOW(main_window), FALSE);
@@ -687,7 +687,7 @@ static void build_window() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 static const gchar introspection_xml[] =
-    "<node><interface name='org.venom.Clipboard'>"
+    "<node><interface name='org.aether.Clipboard'>"
     "<method name='Show'/><method name='Hide'/><method name='Toggle'/>"
     "<method name='GetHistory'><arg type='i' direction='in'/><arg type='a(sxb)' direction='out'/></method>"
     "<method name='ClearHistory'/>"
@@ -756,7 +756,7 @@ static void on_bus_acquired(GDBusConnection *c, const gchar *n, gpointer d) {
 
 int main(int argc, char *argv[]) {
     printf("🚀 ════════════════════════════════════════════════════════════\n");
-    printf("🚀 Venom Clipboard Manager v3.0 (SQLite)\n");
+    printf("🚀 aether Clipboard Manager v3.0 (SQLite)\n");
     printf("🚀 ════════════════════════════════════════════════════════════\n");
     
     gtk_init(&argc, &argv);

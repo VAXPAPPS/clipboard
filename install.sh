@@ -1,13 +1,13 @@
 #!/bin/bash
 # ═══════════════════════════════════════════════════════════════════════════
-# 🐍 Venom Clipboard Daemon - Installer
+# 🐍 aether Clipboard Daemon - Installer
 # ═══════════════════════════════════════════════════════════════════════════
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-DAEMON_NAME="venom_clipboard"
-SERVICE_NAME="venom-clipboard.service"
+DAEMON_NAME="aether_clipboard"
+SERVICE_NAME="aether-clipboard.service"
 
 # ألوان
 RED='\033[0;31m'
@@ -18,7 +18,7 @@ NC='\033[0m'
 
 echo -e "${CYAN}"
 echo "╔════════════════════════════════════════════════════════════╗"
-echo "║   🐍 Venom Clipboard Daemon Installer                      ║"
+echo "║   🐍 aether Clipboard Daemon Installer                      ║"
 echo "╚════════════════════════════════════════════════════════════╝"
 echo -e "${NC}"
 
@@ -84,7 +84,7 @@ else
     echo -e "${YELLOW}⚠️ Service file not found. Generating...${NC}"
     cat > "/usr/lib/systemd/user/$SERVICE_NAME" << EOF
 [Unit]
-Description=Venom Clipboard Daemon
+Description=aether Clipboard Daemon
 After=graphical-session.target
 
 [Service]
@@ -109,7 +109,7 @@ echo -e "  ${GREEN}✓${NC} Service file registered (not enabled - managed by se
 
 # النتيجة
 echo ""
-echo -e "${GREEN}✅ Venom Clipboard Daemon installed successfully!${NC}"
+echo -e "${GREEN}✅ aether Clipboard Daemon installed successfully!${NC}"
 echo ""
 echo -e "   ${CYAN}Status:${NC} systemctl --user status $SERVICE_NAME"
 echo ""

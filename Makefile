@@ -1,5 +1,5 @@
 # ═══════════════════════════════════════════════════════════════════════════
-# Venom Clipboard Daemon - Makefile
+# aether Clipboard Daemon - Makefile
 # ═══════════════════════════════════════════════════════════════════════════
 
 CC = gcc
@@ -7,8 +7,8 @@ CFLAGS = -Wall -Wextra -O2 $(shell pkg-config --cflags gtk+-3.0 sqlite3)
 LDFLAGS = $(shell pkg-config --libs gtk+-3.0 sqlite3)
 LDFLAGS_GIO = $(shell pkg-config --libs gio-2.0)
 
-TARGET = venom_clipboard
-SRC = venom_clipboard.c
+TARGET = aether_clipboard
+SRC = aether_clipboard.c
 
 .PHONY: all clean install
 

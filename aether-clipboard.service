@@ -1,0 +1,12 @@
+[Unit]
+Description=aether Clipboard Daemon
+Documentation=https://github.com/aether/aether_clipboard
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/aether_clipboard
+
+
+[Install]
+WantedBy=default.target
