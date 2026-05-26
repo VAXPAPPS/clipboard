@@ -19,6 +19,7 @@
 #include <string.h>
 #include <time.h>
 #include <sys/stat.h>
+#include "theme_manager.h"
 
 // ═══════════════════════════════════════════════════════════════════════════
 // الإعدادات
@@ -765,6 +766,7 @@ int main(int argc, char *argv[]) {
     load_pinned_entries();
     
     apply_css();
+    theme_manager_init();
     build_window();
     
     clipboard = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);
