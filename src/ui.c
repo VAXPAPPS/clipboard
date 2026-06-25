@@ -289,6 +289,33 @@ static GtkWidget* create_card(int index, ClipboardEntry *entry) {
     return event_box;
 }
 
+static gint flowbox_sort_func(GtkFlowBoxChild *child1, GtkFlowBoxChild *child2, gpointer user_data) {
+    (void)user_data;
+    int idx1 = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(child1), "index"));
+    int idx2 = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(child2), "index"));
+    
+    if (idx1 < 0 || idx1 >= history_count || !history[idx1]) return 0;
+    if (idx2 < 0 || idx2 >= history_count || !history[idx2]) return 0;
+    
+    ClipboardEntry *e1 = history[idx1];
+    ClipboardEntry *e2 = history[idx2];
+    
+    // 1. Pinned
+    if (e1->pinned != e2->pinned) return e1->pinned ? -1 : 1;
+    // 2. Images
+    if (e1->is_image != e2->is_image) return e1->is_image ? -1 : 1;
+    
+    // 3. Short texts before long texts
+    if (!e1->is_image && !e2->is_image) {
+        int e1_short = (e1->content && strlen(e1->content) <= 200) ? 1 : 0;
+        int e2_short = (e2->content && strlen(e2->content) <= 200) ? 1 : 0;
+        if (e1_short != e2_short) return e1_short ? -1 : 1;
+    }
+    
+    // 4. Chronological
+    return idx1 - idx2;
+}
+
 static void rebuild_flowbox() {
     if (!flow_box) return;
     
@@ -505,6 +532,7 @@ void build_window() {
     gtk_flow_box_set_row_spacing(GTK_FLOW_BOX(flow_box), 10);
     
     gtk_flow_box_set_filter_func(GTK_FLOW_BOX(flow_box), flowbox_filter_func, NULL, NULL);
+    gtk_flow_box_set_sort_func(GTK_FLOW_BOX(flow_box), flowbox_sort_func, NULL, NULL);
     g_signal_connect(flow_box, "child-activated", G_CALLBACK(on_child_activated), NULL);
     
     GtkWidget *scroll = gtk_scrolled_window_new(NULL, NULL);
