@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>لوحة الحافظة — شبكة زجاجية</title>
+<style>
+  :root{
+    --bg: #161423;
+    --panel: rgba(35,30,55,0.55);
+    --card: rgba(255,255,255,0.05);
+    --line: rgba(255,255,255,0.09);
+    --text: #ece9f7;
+    --muted: #9b94b8;
+    --accent: #c084fc;
+    --accent2: #60d9c9;
+    --pin: #fbbf67;
+    --ghost: #fb7185;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0; height:100%;
+    background:
+      radial-gradient(circle at 20% 10%, rgba(192,132,252,0.18), transparent 45%),
+      radial-gradient(circle at 90% 80%, rgba(96,217,201,0.12), transparent 45%),
+      var(--bg);
+    font-family: "Noto Kufi Arabic", "Segoe UI", sans-serif;
+    color: var(--text);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .window{
+    width: 480px; height: 620px;
+    background: var(--panel);
+    backdrop-filter: blur(24px) saturate(160%);
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.06);
+    display:flex; flex-direction:column;
+    overflow:hidden;
+  }
+  .header{
+    padding: 18px 20px 12px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .header h1{ font-size:15px; margin:0; font-weight:700; }
+  .header .spacer{flex:1;}
+  .ghost-pill{
+    display:flex; align-items:center; gap:6px;
+    font-size:11px; padding:7px 13px; border-radius:999px;
+    background: var(--card); border: 1px solid var(--line);
+    cursor:pointer; color:var(--muted); transition: all .2s;
+  }
+  .ghost-pill.active{ color: var(--ghost); background: rgba(251,113,133,0.14); border-color: rgba(251,113,133,0.4); }
+
+  .search-wrap{ padding: 0 20px 14px; }
+  .search-box{
+    display:flex; align-items:center; gap:8px;
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 14px; padding: 10px 14px;
+  }
+  .search-box input{
+    flex:1; background:none; border:none; outline:none;
+    color: var(--text); font-size:13px; direction: rtl;
+  }
+  .search-box input::placeholder{ color: var(--muted); }
+
+  .tabs{ display:flex; gap:6px; padding: 0 20px 14px; }
+  .tab{
+    font-size:11.5px; padding:6px 12px; border-radius:10px;
+    background: var(--card); color: var(--muted); cursor:pointer;
+    border: 1px solid transparent;
+  }
+  .tab.active{ background: rgba(192,132,252,0.16); color: var(--accent); border-color: rgba(192,132,252,0.3); }
+
+  .grid{
+    flex:1; overflow-y:auto; padding: 0 16px 16px;
+    display:grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    align-content:start;
+  }
+  .grid::-webkit-scrollbar{ width:5px; }
+  .grid::-webkit-scrollbar-thumb{ background: var(--line); border-radius:3px; }
+
+  .card{
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 10px;
+    cursor:pointer;
+    transition: transform .15s, border-color .15s;
+    position:relative;
+  }
+  .card:hover{ transform: translateY(-2px); border-color: var(--accent); }
+  .card.wide{ grid-column: 1 / 3; }
+
+  .card .img-wrap{
+    width:100%; height:90px; border-radius:10px; overflow:hidden;
+    margin-bottom:8px; background: linear-gradient(135deg,#2c2740,#1b1828);
+  }
+  .card .img-wrap img{ width:100%; height:100%; object-fit:cover; }
+
+  .card .text{ font-size:12px; line-height:1.4; }
+  .card .text.code{ font-family: monospace; font-size:11px; color: var(--accent2); }
+  .card .meta{ font-size:10px; color: var(--muted); margin-top:6px; display:flex; justify-content:space-between; align-items:center; }
+
+  .card .pin-flag{
+    position:absolute; top:8px; left:8px;
+    width:22px; height:22px; border-radius:50%;
+    background: rgba(251,191,103,0.18); color: var(--pin);
+    display:none; align-items:center; justify-content:center; font-size:10px;
+  }
+  .card.pinned .pin-flag{ display:flex; }
+
+  .card.sensitive .text{ filter: blur(6px); user-select:none; }
+  .card.sensitive .meta span:first-child{ color: var(--ghost); }
+</style>
+</head>
+<body>
+
+<div class="window">
+  <div class="header">
+    <h1>الحافظة</h1>
+    <div class="spacer"></div>
+    <div class="ghost-pill" id="ghostPill" onclick="toggleGhost()">👻 شبح</div>
+  </div>
+
+  <div class="search-wrap">
+    <div class="search-box">
+      <span style="color:var(--muted)">⌕</span>
+      <input type="text" placeholder="بحث..." oninput="filterItems(this.value)">
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-f="all">الكل</div>
+    <div class="tab" data-f="pinned">مثبّت</div>
+    <div class="tab" data-f="image">صور</div>
+    <div class="tab" data-f="text">نصوص</div>
+  </div>
+
+  <div class="grid" id="grid">
+    <div class="card wide pinned" data-type="text">
+      <div class="pin-flag">★</div>
+      <div class="text code">https://github.com/alex/sonicwave-pro</div>
+      <div class="meta"><span>رابط</span><span>5 د</span></div>
+    </div>
+
+    <div class="card pinned" data-type="image">
+      <div class="pin-flag">★</div>
+      <div class="img-wrap"><img src="https://images.unsplash.com/photo-1614149162883-504ce4d13909?w=200&h=120&fit=crop" alt=""></div>
+      <div class="meta"><span>صورة</span><span>10 د</span></div>
+    </div>
+
+    <div class="card" data-type="image">
+      <div class="img-wrap"><img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=200&h=120&fit=crop" alt=""></div>
+      <div class="meta"><span>صورة</span><span>22 د</span></div>
+    </div>
+
+    <div class="card" data-type="text">
+      <div class="text">FX Chain: Reverb → Delay → Comp</div>
+      <div class="meta"><span>نص</span><span>30 د</span></div>
+    </div>
+
+    <div class="card sensitive" data-type="text">
+      <div class="text">••••••••••••</div>
+      <div class="meta"><span>حساس · لم يُحفظ</span><span>--</span></div>
+    </div>
+
+    <div class="card wide" data-type="text">
+      <div class="text code">spectrum_analyzer_init(&ctx, FFT_2048);</div>
+      <div class="meta"><span>كود</span><span>45 د</span></div>
+    </div>
+
+    <div class="card" data-type="image">
+      <div class="img-wrap"><img src="https://images.unsplash.com/photo-1571330735066-03aaa9429d89?w=200&h=120&fit=crop" alt=""></div>
+      <div class="meta"><span>صورة</span><span>ساعة</span></div>
+    </div>
+
+    <div class="card" data-type="text">
+      <div class="text">multi-track timeline — 8 مسارات</div>
+      <div class="meta"><span>نص</span><span>ساعتين</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // وضع الشبح: إخفاء كل البطاقات الحساسة من العرض ومن الفلترة بالكامل
+  let ghostActive = false;
+  function toggleGhost(){
+    ghostActive = !ghostActive;
+    document.getElementById('ghostPill').classList.toggle('active', ghostActive);
+    document.querySelectorAll('.card.sensitive').forEach(el => {
+      el.style.display = ghostActive ? 'none' : 'block';
+    });
+  }
+
+  // فلترة عبر تبويبات (الكل / مثبّت / صور / نصوص)
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const f = tab.dataset.f;
+      document.querySelectorAll('.card').forEach(card => {
+        if(f === 'all') card.style.display = 'block';
+        else if(f === 'pinned') card.style.display = card.classList.contains('pinned') ? 'block' : 'none';
+        else card.style.display = card.dataset.type === f ? 'block' : 'none';
+      });
+    });
+  });
+
+  // بحث نصي داخل البطاقات
+  function filterItems(query){
+    const q = query.trim().toLowerCase();
+    document.querySelectorAll('#grid .card').forEach(card => {
+      const txt = card.querySelector('.text').innerText.toLowerCase();
+      card.style.display = txt.includes(q) ? 'block' : 'none';
+    });
+  }
+
+  document.querySelectorAll('.card').forEach(card => {
+    card.addEventListener('dblclick', () => card.classList.toggle('pinned'));
+  });
+</script>
+</body>
+</html>

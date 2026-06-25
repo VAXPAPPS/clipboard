@@ -3,12 +3,12 @@
 # ═══════════════════════════════════════════════════════════════════════════
 
 CC = gcc
-CFLAGS = -Wall -Wextra -O2 $(shell pkg-config --cflags gtk+-3.0 sqlite3)
+CFLAGS = -Wall -Wextra -O2 -Iinclude $(shell pkg-config --cflags gtk+-3.0 sqlite3)
 LDFLAGS = $(shell pkg-config --libs gtk+-3.0 sqlite3)
 LDFLAGS_GIO = $(shell pkg-config --libs gio-2.0)
 
 TARGET = aether_clipboard
-SRC = aether_clipboard.c theme_manager.c
+SRC = src/main.c src/db.c src/history.c src/ui.c src/dbus_service.c src/theme_manager.c
 
 .PHONY: all clean install
 
