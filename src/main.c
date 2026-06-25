@@ -3,7 +3,7 @@
 #include "history.h"
 #include "ui.h"
 #include "dbus_service.h"
-#include "theme_manager.h"
+#include "config_manager.h"
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Global State Definition
@@ -40,8 +40,7 @@ int main(int argc, char *argv[]) {
     init_database();
     load_pinned_entries();
     
-    apply_css();
-    theme_manager_init();
+    config_manager_init();
     build_window();
     
     clipboard = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);
